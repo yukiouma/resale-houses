@@ -1,0 +1,12 @@
+[package]
+name = "resale-houses-server"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "fetcher"
+
+[dependencies]
+dotenv = "0.15.0"
+reqwest = "0.12.9"
+tokio = { version = "1.41.1", features = ["full"] }
