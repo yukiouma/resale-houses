@@ -1,3 +1,7 @@
+mod error;
+mod fetcher;
+
+pub use fetcher::Fetcher;
 use std::{error::Error, path::Path};
 
 async fn fetch() -> Result<(), Box<dyn Error>> {

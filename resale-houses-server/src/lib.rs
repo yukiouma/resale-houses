@@ -1,1 +1,1 @@
-mod fetcher;
+pub mod fetcher;

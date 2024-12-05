@@ -6,7 +6,26 @@ edition = "2021"
 [[bin]]
 name = "fetcher"
 
+[[bin]]
+name = "server"
+
+[workspace]
+members = ["crates/area"]
+
 [dependencies]
 dotenv = "0.15.0"
 reqwest = "0.12.9"
+tokio = { workspace = true }
+area = { path = "crates/area" }
+sqlx = { workspace = true }
+anyhow = { workspace = true }
+
+
+[workspace.dependencies]
 tokio = { version = "1.41.1", features = ["full"] }
+anyhow = "1.0.91"
+sqlx = { version = "0.8.2", features = [
+    "mysql",
+    "runtime-tokio-native-tls",
+    "chrono",
+] }

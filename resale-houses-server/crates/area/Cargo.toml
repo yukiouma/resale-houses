@@ -1,0 +1,13 @@
+[package]
+name = "area"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true }
+
+[[test]]
+name = "integration"
+path = "tests/tests.rs"
