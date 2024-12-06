@@ -1,11 +1,7 @@
 use area::usecase::AreaUsecase;
-use reqwest::{
-    header::{COOKIE, USER_AGENT},
-    Client,
-};
 use resale_houses_server::fetcher::Fetcher;
 use sqlx::MySqlPool;
-use std::env;
+use std::{env, path::Path};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -15,12 +11,16 @@ async fn main() -> anyhow::Result<()> {
     let database_url = env::var("DATABASE_URL")?;
     let pool = MySqlPool::connect(&database_url).await?;
     let area_usecase = AreaUsecase::new(pool.clone());
-    let base_url = "https://gz.ke.com/";
+    let base_url = env::var("BASE_URL")?;
+    let base_dir = env::var("BASE_DIR")?;
 
     let mut fetcher = Fetcher::new();
     fetcher
         .set_area_usecase(&area_usecase)
-        .set_base_url(base_url);
+        .set_base_url(&base_url)
+        .set_base_dir(Path::new(&base_dir))
+        .set_cookie(&cookie)
+        .set_user_agent(&user_agent);
     fetcher.fetch().await.unwrap();
 
     // let mut target = OpenOptions::new()

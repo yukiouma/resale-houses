@@ -1,6 +1,10 @@
-use std::path::Path;
+use std::{fs, path::Path, time::Duration};
 
 use area::{area::Area, usecase::AreaUsecase};
+use reqwest::{
+    header::{COOKIE, USER_AGENT},
+    Client, IntoUrl,
+};
 
 use super::error::Error;
 
@@ -9,6 +13,9 @@ pub struct Fetcher<'a> {
     base_url: &'a str,
     base_dir: Option<&'a Path>,
     area_usecase: Option<&'a AreaUsecase>,
+    cookie: &'a str,
+    user_agent: &'a str,
+    client: Client,
 }
 
 impl<'a> Fetcher<'a> {
@@ -27,6 +34,14 @@ impl<'a> Fetcher<'a> {
         self.base_dir = Some(base_dir);
         self
     }
+    pub fn set_cookie(&mut self, cookie: &'a str) -> &mut Self {
+        self.cookie = cookie;
+        self
+    }
+    pub fn set_user_agent(&mut self, user_agent: &'a str) -> &mut Self {
+        self.user_agent = user_agent;
+        self
+    }
     pub async fn fetch(&self) -> anyhow::Result<(), Error> {
         let areas = self.list_area().await?;
         let codes = areas
@@ -42,6 +57,31 @@ impl<'a> Fetcher<'a> {
         Ok(area)
     }
     async fn fetch_area_preview(&self, codes: &[&str]) -> anyhow::Result<(), Error> {
+        let destination = self.base_dir.unwrap().join("area_preview");
+        if !destination.exists() {
+            fs::create_dir_all(&destination).map_err(|_| Error::ErrCreateDirFailed)?;
+        }
+        for code in codes {
+            let url = format!("{}/xiaoqu/{}/", self.base_url, code);
+            let page = self
+                .fetch_page(url)
+                .await
+                .map_err(|_| Error::ErrFetchPageFailed)?;
+            fs::write(&destination.join(format!("{}.html", code)), &page)
+                .map_err(|_| Error::ErrSavePageFailed)?;
+            tokio::time::sleep(Duration::from_secs(2)).await;
+        }
         Ok(())
+    }
+    async fn fetch_page<U: IntoUrl>(&self, url: U) -> anyhow::Result<Vec<u8>> {
+        println!("fetching: {:?}", url.as_str());
+        let response = self
+            .client
+            .get(url)
+            .header(COOKIE, self.cookie)
+            .header(USER_AGENT, self.user_agent)
+            .send()
+            .await?;
+        Ok(response.bytes().await?.to_vec())
     }
 }
