@@ -57,7 +57,10 @@ impl<'a> Fetcher<'a> {
         Ok(area)
     }
     async fn fetch_area_preview(&self, codes: &[&str]) -> anyhow::Result<(), Error> {
-        let destination = self.base_dir.unwrap().join("area_preview");
+        let destination = self
+            .base_dir
+            .ok_or(Error::ErrInvalidBaseDir)?
+            .join("area_preview");
         if !destination.exists() {
             fs::create_dir_all(&destination).map_err(|_| Error::ErrCreateDirFailed)?;
         }
