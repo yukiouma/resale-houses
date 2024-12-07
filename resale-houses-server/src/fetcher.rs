@@ -1,4 +1,5 @@
 mod error;
+mod extractor;
 mod fetcher;
 mod repo;
 
