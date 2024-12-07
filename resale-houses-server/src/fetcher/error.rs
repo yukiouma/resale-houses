@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub enum Error {
-    ErrAreaUsecaseNotSet,
+    ErrRepoNotSet,
     ErrInvalidBaseUrl,
     ErrInvalidBaseDir,
     ErrListAreaFailed,

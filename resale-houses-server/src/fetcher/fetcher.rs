@@ -1,18 +1,18 @@
 use std::{fs, path::Path, time::Duration};
 
-use area::{area::Area, usecase::AreaUsecase};
+use area::area::Area;
 use reqwest::{
     header::{COOKIE, USER_AGENT},
     Client, IntoUrl,
 };
 
-use super::error::Error;
+use super::{error::Error, Repo};
 
 #[derive(Default)]
 pub struct Fetcher<'a> {
     base_url: &'a str,
     base_dir: Option<&'a Path>,
-    area_usecase: Option<&'a AreaUsecase>,
+    repo: Option<&'a Repo>,
     cookie: &'a str,
     user_agent: &'a str,
     client: Client,
@@ -22,8 +22,8 @@ impl<'a> Fetcher<'a> {
     pub fn new() -> Self {
         Fetcher::default()
     }
-    pub fn set_area_usecase(&mut self, area_usecase: &'a AreaUsecase) -> &mut Self {
-        self.area_usecase = Some(&area_usecase);
+    pub fn set_repo(&mut self, repo: &'a Repo) -> &mut Self {
+        self.repo = Some(&repo);
         self
     }
     pub fn set_base_url(&mut self, base_url: &'a str) -> &mut Self {
@@ -52,7 +52,7 @@ impl<'a> Fetcher<'a> {
         Ok(())
     }
     async fn list_area(&self) -> anyhow::Result<Vec<Area>, Error> {
-        let uc = self.area_usecase.ok_or(Error::ErrAreaUsecaseNotSet)?;
+        let uc = self.repo.ok_or(Error::ErrRepoNotSet)?;
         let area = uc.list_area().await.map_err(|_| Error::ErrListAreaFailed)?;
         Ok(area)
     }

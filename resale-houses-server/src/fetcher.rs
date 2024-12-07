@@ -1,7 +1,9 @@
 mod error;
 mod fetcher;
+mod repo;
 
 pub use fetcher::Fetcher;
+pub use repo::Repo;
 use std::{error::Error, path::Path};
 
 async fn fetch() -> Result<(), Box<dyn Error>> {

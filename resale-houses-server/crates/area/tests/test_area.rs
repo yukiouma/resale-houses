@@ -6,8 +6,11 @@ async fn area() -> anyhow::Result<()> {
     let url = "mysql://root:000000@localhost:3306/resale-houses?parseTime=True";
     let pool = create_pool(url).await;
     let uc = AreaUsecase::new(pool);
-    let areas = uc.list_area().await?;
+    let areas: Vec<area::area::Area> = uc.list_area().await?;
     assert_eq!(areas.len(), 1);
+    let mut area = areas.first().unwrap().clone();
+    area.page = 4;
+    uc.update_area_pages(&area).await?;
     Ok(())
 }
 

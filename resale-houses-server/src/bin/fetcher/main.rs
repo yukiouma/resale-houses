@@ -1,22 +1,20 @@
-use area::usecase::AreaUsecase;
-use resale_houses_server::fetcher::Fetcher;
-use sqlx::MySqlPool;
+use dotenv;
+use resale_houses_server::fetcher::{Fetcher, Repo};
 use std::{env, path::Path};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
+    let server_base_url = env::var("SERVER_BASE_URL")?;
     let cookie = env::var("COOKIE_VALUE")?;
     let user_agent = env::var("USER_AGENT_VALUE")?;
-    let database_url = env::var("DATABASE_URL")?;
-    let pool = MySqlPool::connect(&database_url).await?;
-    let area_usecase = AreaUsecase::new(pool.clone());
+    let repo = Repo::new(&server_base_url);
     let base_url = env::var("BASE_URL")?;
     let base_dir = env::var("BASE_DIR")?;
 
     let mut fetcher = Fetcher::new();
     fetcher
-        .set_area_usecase(&area_usecase)
+        .set_repo(&repo)
         .set_base_url(&base_url)
         .set_base_dir(Path::new(&base_dir))
         .set_cookie(&cookie)
